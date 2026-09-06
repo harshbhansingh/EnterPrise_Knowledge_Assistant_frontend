@@ -1,0 +1,120 @@
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: (
+      plain-family: 'Inter, "Segoe UI", Roboto, sans-serif',
+      brand-family: 'Inter, "Segoe UI", Roboto, sans-serif',
+    ),
+    density: 0,
+  ));
+}
+
+:root {
+  --eka-bg: #f4f6fa;
+  --eka-surface: #ffffff;
+  --eka-border: #e3e8ef;
+  --eka-text: #1a1f2b;
+  --eka-muted: #5f6b7a;
+  --eka-primary: #1f5eff;
+  --eka-primary-soft: #e8efff;
+  --eka-success: #1e8e5a;
+  --eka-success-soft: #e3f6ec;
+  --eka-warning: #b26a00;
+  --eka-warning-soft: #fff3e0;
+  --eka-danger: #c62828;
+  --eka-danger-soft: #fdecea;
+  --eka-info: #0b6bcb;
+  --eka-info-soft: #e6f2fb;
+  --eka-radius: 12px;
+  --eka-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+}
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--eka-bg);
+  color: var(--eka-text);
+  font-family: Inter, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.eka-card {
+  background: var(--eka-surface);
+  border: 1px solid var(--eka-border);
+  border-radius: var(--eka-radius);
+  box-shadow: var(--eka-shadow);
+  padding: 20px 24px;
+}
+
+.eka-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+}
+
+.eka-page-title {
+  font-size: 26px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.eka-page-subtitle {
+  color: var(--eka-muted);
+  margin: 0 0 24px;
+}
+
+.eka-muted { color: var(--eka-muted); }
+
+.eka-error-banner {
+  background: var(--eka-danger-soft);
+  color: var(--eka-danger);
+  border: 1px solid #f5c6c2;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.eka-success-banner {
+  background: var(--eka-success-soft);
+  color: var(--eka-success);
+  border: 1px solid #bfe6d0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mat-mdc-snack-bar-container.eka-snack-error .mdc-snackbar__surface {
+  background: var(--eka-danger);
+  color: #fff;
+}
+
+.mat-mdc-snack-bar-container.eka-snack-success .mdc-snackbar__surface {
+  background: var(--eka-success);
+  color: #fff;
+}
+
+a { color: var(--eka-primary); }

@@ -1,0 +1,43 @@
+@if (auth.isAuthenticated()) {
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" routerLink="/dashboard">
+        <span class="brand-mark material-symbols-outlined">psychology</span>
+        <span class="brand-text">
+          <strong>Knowledge Assistant</strong>
+          <small>Enterprise RAG</small>
+        </span>
+      </a>
+      <nav>
+        @for (item of navigation; track item.path) {
+          <a class="nav-link" [routerLink]="item.path" routerLinkActive="active">
+            <span class="material-symbols-outlined">{{ item.icon }}</span>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-chip" [matMenuTriggerFor]="userMenu" matTooltip="Account">
+          <span class="avatar">{{ (auth.user()?.displayName || '?').charAt(0).toUpperCase() }}</span>
+          <span class="user-meta">
+            <strong>{{ auth.user()?.displayName }}</strong>
+            <small>{{ auth.user()?.email }}</small>
+          </span>
+          <span class="material-symbols-outlined">expand_more</span>
+        </div>
+        <mat-menu #userMenu="matMenu">
+          <div class="menu-role">Role: {{ auth.user()?.role }}</div>
+          <button mat-menu-item (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            <span>Sign out</span>
+          </button>
+        </mat-menu>
+      </div>
+    </aside>
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+} @else {
+  <router-outlet />
+}

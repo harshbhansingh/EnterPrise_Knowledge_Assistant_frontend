@@ -1,0 +1,90 @@
+<div class="eka-page">
+  <h1 class="eka-page-title">Documents</h1>
+  <p class="eka-page-subtitle">Upload enterprise documents. They are parsed, chunked, embedded and indexed for retrieval.</p>
+
+  <section class="eka-card upload-card">
+    <div class="dropzone" [class.dragging]="dragging()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)">
+      <span class="material-symbols-outlined">cloud_upload</span>
+      <div>
+        <strong>Drag a file here or</strong>
+        <label class="file-label">
+          <input type="file" [accept]="acceptedExtensions" (change)="onFileSelected($event)" hidden />
+          <span class="browse-link">browse</span>
+        </label>
+      </div>
+      <small class="eka-muted">PDF, DOCX or TXT up to 20 MB. Indexing runs in the background.</small>
+    </div>
+    @if (uploadingName()) {
+      <div class="upload-progress">
+        <span>Uploading {{ uploadingName() }} ({{ uploadProgress() ?? 0 }}%)</span>
+        <mat-progress-bar mode="determinate" [value]="uploadProgress() ?? 0" />
+      </div>
+    }
+    @if (uploadError()) {
+      <div class="eka-error-banner"><span class="material-symbols-outlined">error</span> {{ uploadError() }}</div>
+    }
+  </section>
+
+  <section class="eka-card list-card">
+    <div class="toolbar">
+      <div class="filters">
+        <button class="filter" [class.active]="statusFilter() === null" (click)="setFilter(null)">All</button>
+        @for (status of statuses; track status) {
+          <button class="filter" [class.active]="statusFilter() === status" (click)="setFilter(status)">{{ status | lowercase }}</button>
+        }
+      </div>
+      <button mat-button (click)="load()" matTooltip="Refresh"><span class="material-symbols-outlined">refresh</span></button>
+    </div>
+
+    @if (loading()) {
+      <div class="loading"><mat-spinner diameter="32" /></div>
+    } @else if (error()) {
+      <div class="eka-error-banner"><span class="material-symbols-outlined">error</span> {{ error() }}
+        <button mat-button (click)="load()">Retry</button></div>
+    } @else if (page(); as p) {
+      @if (p.content.length === 0) {
+        <app-empty-state icon="description" title="No documents" description="Upload a document above to build your knowledge base." />
+      } @else {
+        <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Name</th><th>Status</th><th>Size</th><th>Chunks</th><th>Uploaded</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (doc of p.content; track doc.id) {
+              <tr [class.deleted]="doc.status === 'DELETED'">
+                <td>
+                  <a class="name" [routerLink]="['/documents', doc.id]">
+                    <span class="material-symbols-outlined">description</span>
+                    <span>{{ doc.filename }}</span>
+                  </a>
+                  @if (doc.status === 'FAILED' && doc.errorMessage) {
+                    <div class="error-text">{{ doc.errorMessage }}</div>
+                  }
+                </td>
+                <td><app-status-chip [status]="doc.status" /></td>
+                <td>{{ doc.fileSize | fileSize }}</td>
+                <td>{{ doc.chunkCount }}</td>
+                <td>{{ doc.createdAt | relativeTime }}</td>
+                <td class="actions">
+                  @if (isBusy(doc.id)) {
+                    <mat-spinner diameter="18" />
+                  } @else if (doc.status !== 'DELETED') {
+                    <button mat-icon-button [matMenuTriggerFor]="rowMenu" aria-label="Actions"><span class="material-symbols-outlined">more_vert</span></button>
+                    <mat-menu #rowMenu="matMenu">
+                      <a mat-menu-item [routerLink]="['/documents', doc.id]"><span class="material-symbols-outlined">info</span> Details</a>
+                      <button mat-menu-item (click)="reindex(doc)" [disabled]="doc.status === 'PROCESSING'"><span class="material-symbols-outlined">autorenew</span> Re-index</button>
+                      <button mat-menu-item (click)="remove(doc)"><span class="material-symbols-outlined">delete</span> Delete</button>
+                    </mat-menu>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        </div>
+        <mat-paginator [length]="p.totalElements" [pageIndex]="p.page" [pageSize]="p.size" [pageSizeOptions]="[10, 20, 50]" (page)="onPage($event)" />
+      }
+    }
+  </section>
+</div>

@@ -1,0 +1,68 @@
+<div class="eka-page">
+  <a class="back" routerLink="/documents"><span class="material-symbols-outlined">arrow_back</span> Back to documents</a>
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="32" /></div>
+  } @else if (error()) {
+    <div class="eka-error-banner"><span class="material-symbols-outlined">error</span> {{ error() }}</div>
+  } @else if (document(); as doc) {
+    <div class="head">
+      <div>
+        <h1 class="eka-page-title">{{ doc.filename }}</h1>
+        <div class="head-meta"><app-status-chip [status]="doc.status" /> <span class="eka-muted">Uploaded {{ doc.createdAt | relativeTime }}</span></div>
+      </div>
+      @if (doc.status !== 'DELETED') {
+        <div class="head-actions">
+          <button mat-stroked-button (click)="reindex()" [disabled]="busy() || doc.status === 'PROCESSING'"><span class="material-symbols-outlined">autorenew</span> Re-index</button>
+          <button mat-stroked-button class="danger" (click)="remove()" [disabled]="busy()"><span class="material-symbols-outlined">delete</span> Delete</button>
+        </div>
+      }
+    </div>
+
+    @if (doc.status === 'FAILED') {
+      <div class="eka-error-banner"><span class="material-symbols-outlined">error</span> Indexing failed: {{ doc.errorMessage }}</div>
+    }
+    @if (doc.status === 'PROCESSING' || doc.status === 'UPLOADED') {
+      <div class="eka-success-banner"><mat-spinner diameter="18" /> The document is being extracted, chunked and embedded. This page refreshes automatically.</div>
+    }
+
+    <div class="grid">
+      <section class="eka-card">
+        <h2>Metadata</h2>
+        <dl>
+          <dt>Content type</dt><dd>{{ doc.contentType }}</dd>
+          <dt>Size</dt><dd>{{ doc.fileSize | fileSize }}</dd>
+          <dt>Characters extracted</dt><dd>{{ doc.characterCount }}</dd>
+          <dt>Chunks</dt><dd>{{ doc.chunkCount }}</dd>
+          <dt>Checksum (SHA-256)</dt><dd class="mono">{{ doc.checksum }}</dd>
+          <dt>Indexed at</dt><dd>{{ doc.indexedAt ? (doc.indexedAt | relativeTime) : '-' }}</dd>
+          <dt>Document id</dt><dd class="mono">{{ doc.id }}</dd>
+          @for (entry of metadataEntries(); track entry.key) {
+            <dt>{{ entry.key }}</dt><dd>{{ entry.value }}</dd>
+          }
+        </dl>
+      </section>
+
+      <section class="eka-card">
+        <h2>Chunks</h2>
+        <p class="eka-muted">Each chunk is embedded separately and is what the assistant retrieves and cites.</p>
+        @if (chunks(); as page) {
+          @if (page.content.length === 0) {
+            <app-empty-state icon="view_agenda" title="No chunks yet" description="Chunks appear once indexing has completed." />
+          } @else {
+            @for (chunk of page.content; track chunk.id) {
+              <article class="chunk">
+                <header>
+                  <span class="chunk-index">#{{ chunk.chunkIndex + 1 }}</span>
+                  @if (sectionOf(chunk); as section) { <span class="chunk-section">{{ section }}</span> }
+                  <span class="eka-muted">{{ chunk.charCount }} chars</span>
+                </header>
+                <p>{{ chunk.content }}</p>
+              </article>
+            }
+            <mat-paginator [length]="page.totalElements" [pageIndex]="page.page" [pageSize]="page.size" [hidePageSize]="true" (page)="onChunkPage($event)" />
+          }
+        }
+      </section>
+    </div>
+  }
+</div>

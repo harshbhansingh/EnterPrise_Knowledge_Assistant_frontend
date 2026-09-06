@@ -1,0 +1,43 @@
+<div class="auth-page">
+  <section class="auth-hero">
+    <span class="material-symbols-outlined brand-mark">psychology</span>
+    <h1>Enterprise Knowledge Assistant</h1>
+    <p>Ask questions in plain language and get answers grounded in your organisation's own handbooks, policies and guidelines, with citations to the exact passages.</p>
+    <ul>
+      <li>Upload PDF, DOCX and TXT documents</li>
+      <li>Semantic search powered by PostgreSQL + pgvector</li>
+      <li>Answers cite their sources and admit when they do not know</li>
+    </ul>
+  </section>
+  <section class="auth-form-wrap">
+    <div class="auth-card eka-card">
+      <h2>Sign in</h2>
+      <p class="hint">Use your work email and password.</p>
+      @if (sessionExpired) {
+        <div class="eka-error-banner"><span class="material-symbols-outlined">timer_off</span> Your session has expired. Please sign in again.</div>
+      }
+      @if (error()) {
+        <div class="eka-error-banner"><span class="material-symbols-outlined">error</span> {{ error() }}</div>
+      }
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" autocomplete="username" />
+          @if (form.controls.email.hasError('required')) { <mat-error>Email is required</mat-error> }
+          @if (form.controls.email.hasError('email')) { <mat-error>Enter a valid email</mat-error> }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          @if (form.controls.password.hasError('required')) { <mat-error>Password is required</mat-error> }
+        </mat-form-field>
+        <div class="actions">
+          <button mat-flat-button type="submit" [disabled]="loading()">
+            @if (loading()) { <mat-spinner diameter="18" /> } @else { Sign in }
+          </button>
+          <span class="alt">No account yet? <a routerLink="/register">Create one</a></span>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>

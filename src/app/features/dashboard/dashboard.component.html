@@ -1,0 +1,73 @@
+<div class="eka-page">
+  <div class="header-row">
+    <div>
+      <h1 class="eka-page-title">Welcome back, {{ auth.user()?.displayName }}</h1>
+      <p class="eka-page-subtitle">Overview of your knowledge base and recent activity.</p>
+    </div>
+    <div class="header-actions">
+      <a mat-stroked-button routerLink="/documents"><span class="material-symbols-outlined">upload_file</span> Upload document</a>
+      <a mat-flat-button routerLink="/chat"><span class="material-symbols-outlined">forum</span> Ask a question</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="36" /></div>
+  } @else if (error()) {
+    <div class="eka-error-banner"><span class="material-symbols-outlined">error</span> {{ error() }}
+      <button mat-button (click)="load()">Retry</button></div>
+  } @else if (summary(); as s) {
+    <div class="stats">
+      <div class="stat eka-card"><span class="stat-label">Total documents</span><span class="stat-value">{{ s.totalDocuments }}</span></div>
+      <div class="stat eka-card success"><span class="stat-label">Indexed</span><span class="stat-value">{{ s.indexedDocuments }}</span></div>
+      <div class="stat eka-card warning"><span class="stat-label">Processing</span><span class="stat-value">{{ s.processingDocuments + s.uploadedDocuments }}</span></div>
+      <div class="stat eka-card danger"><span class="stat-label">Failed</span><span class="stat-value">{{ s.failedDocuments }}</span></div>
+      <div class="stat eka-card"><span class="stat-label">Indexed chunks</span><span class="stat-value">{{ s.totalChunks }}</span></div>
+      <div class="stat eka-card"><span class="stat-label">Conversations</span><span class="stat-value">{{ s.totalConversations }}</span></div>
+    </div>
+
+    <div class="columns">
+      <section class="eka-card">
+        <div class="section-head"><h2>Recent uploads</h2><a routerLink="/documents">View all</a></div>
+        @if (s.recentDocuments.length) {
+          <ul class="list">
+            @for (doc of s.recentDocuments; track doc.id) {
+              <li>
+                <a class="item-main" [routerLink]="['/documents', doc.id]">
+                  <span class="material-symbols-outlined">description</span>
+                  <span class="item-text"><strong>{{ doc.filename }}</strong>
+                    <small>{{ doc.fileSize | fileSize }} &middot; {{ doc.chunkCount }} chunks &middot; {{ doc.createdAt | relativeTime }}</small></span>
+                </a>
+                <app-status-chip [status]="doc.status" />
+              </li>
+            }
+          </ul>
+        } @else {
+          <app-empty-state icon="upload_file" title="No documents yet" description="Upload a handbook or policy to start asking questions.">
+            <a mat-flat-button routerLink="/documents">Upload your first document</a>
+          </app-empty-state>
+        }
+      </section>
+
+      <section class="eka-card">
+        <div class="section-head"><h2>Recent conversations</h2><a routerLink="/conversations">View all</a></div>
+        @if (s.recentConversations.length) {
+          <ul class="list">
+            @for (conversation of s.recentConversations; track conversation.id) {
+              <li>
+                <a class="item-main" [routerLink]="['/chat', conversation.id]">
+                  <span class="material-symbols-outlined">chat_bubble</span>
+                  <span class="item-text"><strong>{{ conversation.title }}</strong>
+                    <small>{{ conversation.messageCount }} messages &middot; {{ conversation.updatedAt | relativeTime }}</small></span>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <app-empty-state icon="forum" title="No conversations yet" description="Ask your first question in the chat.">
+            <a mat-flat-button routerLink="/chat">Open chat</a>
+          </app-empty-state>
+        }
+      </section>
+    </div>
+  }
+</div>
